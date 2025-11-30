@@ -1,87 +1,79 @@
-# Mini Product Dashboard
+داشبۆردی بەڕێوەبردنی کاڵاکان – Mini Product Dashboard
 
-A responsive product management dashboard built with Next.js 14, TypeScript, and Tailwind CSS.
+(وەرزەی پاک و پڕۆفەشنەل، بەبێ ئیمۆجی)
 
-## Features
+دەربارەی پڕۆژەکە
 
-- 📱 **Fully Responsive Design** - Works on mobile, tablet, and desktop devices
-- 🛠️ **CRUD Operations** - Create, read, update, and delete products
-- 🔍 **Search & Filter** - Search products by title and filter by category
-- 📊 **Dashboard** - Overview of product statistics
-- 🔐 **Authentication** - Admin login system with session management
-- ⚙️ **Settings** - User account management
-- 🚪 **Logout** - Easy logout from settings page
-- 🎨 **Modern UI** - Clean, intuitive interface with dark mode support
+ئەم پڕۆژەیە داشبۆردێکی سادە، تامەزرۆز و کاریگەرە بۆ بەڕێوەبردنی کاڵاکان. وەک پانێلی بەڕێوەبردن کار دەکات کە لە یەک شوێنەوە دەتوانیت زیادکردن، دەستکاریکردن، گەڕان، فلتەرکردن و بینینی ستاتەکانی کاڵاکانت بکەیت.
 
-## Tech Stack
+پڕۆژەکە بە شێوەیێک دیزاین کراوە کە خاوەن سرعت، سادەیی و ڕیسپۆنس بوونە.
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **UI Components**: shadcn/ui, Radix UI
-- **Data Management**: TanStack Table (React Table)
-- **API**: Fake Store API
-- **State Management**: React Context API
-- **Form Handling**: React Hook Form, Zod validation
+خاسیەتەکان
 
-## Getting Started
+تامەزرۆز لەسەر مۆبایل، تەبلێت و کۆمپیوتەر
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+زیادکردنی کاڵا
 
-## Authentication
+دەستکاریکردنی کاڵا
 
-The application includes a comprehensive authentication system:
+گەڕان و فلتەرکردنی کاڵاکان
 
-- Users must log in to access any protected pages
-- Unauthenticated users see only the login page
-- All routes are protected and redirect to login when not authenticated
-- Users can log out from the settings page
-- Session persistence using localStorage
+نیشاندانی ستات و داتاکان لە داشبۆرد
 
-Demo credentials:
+سیستەمی چوونەژوورەوەی پارێزراو
 
-- Email: `admin@example.com`
-- Password: `any password`
+پەڕەی ڕێکخستن و هەژماری بەکارهێنەر
 
-## Responsive Design
+دیزاینێکی ڕوونی سادە و کاربەر-دووستانە
 
-The application is fully responsive and adapts to different screen sizes:
+تکنۆلۆژیە بەکارهاتووەکان
 
-- **Mobile**: Card-based layout for products
-- **Tablet**: Scrollable table view
-- **Desktop**: Full table view with all features
+Next.js 14 – فریمۆڕکی بێجگە لە پیشەسازی و پێشکەوتن
 
-## Folder Structure
+TypeScript – بۆ کۆدی پاکتر و هەڵەکەمتر
 
-```
-app/              # Next.js app router pages
-  dashboard/      # Dashboard redirect route
-  logout/         # Logout route
-components/       # Reusable UI components
-  auth/           # Authentication components and context
-  products/       # Product-specific components
-  ui/             # shadcn/ui components
-lib/              # Utility functions and API integration
-```
+Tailwind CSS – بۆ دروستکردنی دیزاینێکی درووست و خاوەن جوانی
 
-## Learnings
+shadcn/ui و Radix UI – بۆ کۆمپۆنێنتی UI ی پڕۆفەشنەل
 
-This project demonstrates:
+TanStack Table – بۆ ڕێکخستنی جدۆل و داتا
 
-- Building responsive layouts with Tailwind CSS
-- Implementing CRUD operations with REST APIs
-- Creating reusable React components
-- State management with React Context
-- TypeScript best practices
-- Modern Next.js 14 features
-- Client-side authentication and route protection
-- Conditional rendering based on authentication status
+React Hook Form + Zod – بۆ کۆنتڕۆڵ و ڕاستکردنەوەی فۆرم
 
-Built with ❤️ by Faraidun Bahaden
+چۆنیەتی دەستپێکردن
+
+پڕۆژەکە دابگرە
+
+پێکەنینی پەکەیجەکان:
+
+npm install
+
+
+کردنەوەی پڕۆژە:
+
+npm run dev
+
+
+سەردان بکە:
+
+http://localhost:3000
+
+چوونەژوورەوە بۆ تاقیکردنەوە
+
+Email: admin@example.com
+
+Password: هەر وشەیەک دابنێ (بۆ تاقیکردن کار دەکات)
+
+ئامانجی پڕۆژەکە
+
+دروستکردنی سیستەمێکی خێرا و کاریگەر بۆ بەڕێوەبردنی داتا
+
+چاوپێکەوتنی responsiveness لە هەموو دیڤایسەکان
+
+زیادکردنی سادەیی و order لە UI/UX
+
+بەکاربردنی pattern ـەکانی پێشکەوتوو بۆ فرۆنت‌ئەند
+
+نووسەر
+
+دروستکراوە لەلایەن فەرەیدوون باهادین
