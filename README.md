@@ -43,6 +43,7 @@
 ## چوونەژوورەوە بۆ تاقیکردنەوە
 
 Email: Faraidun@gmail.com
+
 Password: fang
 
 ## ئامانجی پڕۆژەکە
