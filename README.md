@@ -42,8 +42,8 @@
 
 ## چوونەژوورەوە بۆ تاقیکردنەوە
 
-Email: faraidun.bahaden@gmail.com
-Password: Fang
+Email: admin@example.com
+Password: هەر وشەیەک دابنێ (بۆ تاقیکردن کار دەکات)
 
 ## ئامانجی پڕۆژەکە
 
