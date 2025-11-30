@@ -1,17 +1,11 @@
 "use client";
 
-import {
-  ChevronLeft,
-  Home,
-  LogOut,
-  Settings,
-  Package,
-  Plus,
-} from "lucide-react";
+import { ChevronLeft, Home, Settings, Package, Plus } from "lucide-react";
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import SidebarItem from "@/components/sidebar-item";
+import { useAuth } from "@/components/auth/auth-context";
 
 interface SidebarProps {
   className?: string;
@@ -20,6 +14,7 @@ interface SidebarProps {
 const CollapsibleSidebar: React.FC<SidebarProps> = ({ className }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const toggleSidebar = () => {
     setIsCollapsed((prev) => !prev);
@@ -33,7 +28,6 @@ const CollapsibleSidebar: React.FC<SidebarProps> = ({ className }) => {
 
   const userActions = [
     { icon: Settings, label: "Settings", slug: "/settings" },
-    { icon: LogOut, label: "Logout", slug: "/logout" },
   ];
 
   return (
@@ -100,7 +94,7 @@ const CollapsibleSidebar: React.FC<SidebarProps> = ({ className }) => {
         <div className="flex items-center px-4 py-3 transition cursor-pointer hover:bg-gray-100">
           <img
             src="https://scontent.fbgw4-4.fna.fbcdn.net/v/t39.30808-6/592118495_827346483499315_3816189213489574518_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeH22C9XIhdzL9UAgvOHtdKEqb2YDleVF5-pvZgOV5UXnx5rQFiPOtucys-87lzbsfzbtlshwb8Tga4hE-jZ97MF&_nc_ohc=9oyfG8CEXsIQ7kNvwEY4kdi&_nc_oc=Adk_ih7enDNoX0jP8k4-7_iVdKuOaxp7UwNqaHElVWdWjX_bG2yhjpc9aRXLkmUoclo&_nc_zt=23&_nc_ht=scontent.fbgw4-4.fna&_nc_gid=yxx73YRf2g52hQRRS2sxoA&oh=00_AfgFRk3DGEnxEThKsrWWCplG-_PcdSBH9tKukmc7aqM1Ng&oe=69326611"
-            alt="Faraidun Bahaden"
+            alt="User"
             className="rounded-full size-8"
           />
           <div
@@ -110,11 +104,9 @@ const CollapsibleSidebar: React.FC<SidebarProps> = ({ className }) => {
             )}
           >
             <span className="text-sm font-medium text-black">
-              Faraidun Bahaden
+              {user?.email || "User"}
             </span>
-            <span className="text-xs text-gray-600">
-              FaraidunBahaden@gmail.com
-            </span>
+            <span className="text-xs text-gray-600">Admin</span>
           </div>
         </div>
 

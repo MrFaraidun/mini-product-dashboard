@@ -1,5 +1,10 @@
 import ProductsPage from "@/components/products/products-page";
+import { DashboardLayout } from "@/app/dashboard-layout";
 
 export default function Page() {
-  return <ProductsPage />;
+  return (
+    <DashboardLayout>
+      <ProductsPage />
+    </DashboardLayout>
+  );
 }

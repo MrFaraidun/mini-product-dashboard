@@ -7,6 +7,7 @@ import { createProduct, ProductInput } from "@/lib/api/products";
 import { ProductForm } from "@/components/product-form";
 
 import { toast, Toaster } from "sonner";
+import { DashboardLayout } from "@/app/dashboard-layout";
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -30,12 +31,14 @@ export default function AddProductPage() {
   };
 
   return (
-    <div className="space-y-4 ">
-      <Toaster richColors closeButton />
+    <DashboardLayout>
+      <div className="space-y-4">
+        <Toaster richColors closeButton />
 
-      <h2 className="text-xl font-semibold tracking-tight">Add Product</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Add Product</h2>
 
-      <ProductForm onSubmit={handleSubmit} loading={loading} />
-    </div>
+        <ProductForm onSubmit={handleSubmit} loading={loading} />
+      </div>
+    </DashboardLayout>
   );
 }
