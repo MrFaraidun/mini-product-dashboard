@@ -1,7 +1,6 @@
 import { Product } from "@/lib/api/products";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
-import Image from "next/image";
 
 interface ProductCardProps {
   product: Product;
@@ -13,18 +12,21 @@ export function ProductCard({ product, onEdit, onDelete }: ProductCardProps) {
   return (
     <div className="w-full max-w-md p-3 mx-auto border rounded-lg shadow-sm bg-background">
       <div className="flex gap-3">
-        <div className="flex-shrink-0">
-          <Image
+        <div className="shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={
-              product.image || "https://via.placeholder.com/50?text=No+Image"
+              typeof product.image === "string" && product.image.length > 0
+                ? product.image
+                : "https://via.placeholder.com/50?text=No+Image"
             }
             alt={product.title}
             width={50}
             height={50}
             className="object-cover border rounded-md"
             onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = "https://via.placeholder.com/50?text=No+Image";
+              (e.currentTarget as HTMLImageElement).src =
+                "https://via.placeholder.com/50?text=No+Image";
             }}
           />
         </div>

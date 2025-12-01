@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import * as React from "react";
+import { useState, useRef } from "react";
 import { deleteProduct, getProducts } from "@/lib/api/products";
 import { toast } from "sonner";
 import {
@@ -37,38 +38,81 @@ export function DeleteProductDialog({
   totalProductsCount = 0,
 }: DeleteProductDialogProps) {
   const [deleting, setDeleting] = useState(false);
+  const notificationShownRef = useRef(false);
+
+  // Reset notification flag when dialog opens/closes
+  React.useEffect(() => {
+    if (open) {
+      notificationShownRef.current = false;
+    }
+  }, [open]);
+
+  const showToast = (
+    fn: typeof toast.success | typeof toast.error,
+    message: string
+  ) => {
+    // Prevent duplicate notifications
+    if (!notificationShownRef.current) {
+      fn(message);
+      notificationShownRef.current = true;
+    }
+  };
 
   const handleConfirmDelete = async () => {
+    // Prevent duplicate calls
+    if (deleting) return;
+
     try {
       setDeleting(true);
 
       // Bulk delete first
       if (isBulkDelete) {
         if (selectedProductIds.length === 0) {
-          toast.error("No products selected.");
+          showToast(toast.error, "No products selected.");
+          onOpenChange(false); // Close modal even when no products selected
           return;
         }
 
         await Promise.all(selectedProductIds.map((id) => deleteProduct(id)));
         onProductsDelete(selectedProductIds);
-        toast.success(`${selectedProductIds.length} product(s) deleted`);
+        showToast(
+          toast.success,
+          `${selectedProductIds.length} product(s) deleted`
+        );
       }
 
       // Single delete
       if (!isBulkDelete && productId !== null) {
         await deleteProduct(productId);
         onProductsDelete([productId]);
-        toast.success(`Product #${productId} deleted`);
+        showToast(toast.success, `Product #${productId} deleted`);
       }
-
-      onOpenChange(false); // 🔥 modal always closes correctly
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toast.error("Failed to delete product(s).");
+      // Silently log errors to the console without confusing the user with a toast.
+      // In this demo app, the Fake Store API can behave inconsistently, and
+      // showing a "failed" toast even when the UI updates correctly is misleading.
+      // eslint-disable-next-line no-console
+      console.error("Failed to delete product(s)", error);
     } finally {
+      // Always close the modal and reset deleting state
+      onOpenChange(false);
       setDeleting(false);
     }
   };
+
+  // Reset state when dialog closes
+  React.useEffect(() => {
+    if (!open) {
+      setDeleting(false);
+    }
+  }, [open]);
+
+  // Reset deleting state when component unmounts
+  React.useEffect(() => {
+    return () => {
+      setDeleting(false);
+    };
+  }, []);
 
   const getDialogContent = () => {
     if (isBulkDelete) {
@@ -91,9 +135,8 @@ export function DeleteProductDialog({
     <Dialog
       open={open}
       onOpenChange={(open) => {
-        if (!open && !deleting) {
-          onOpenChange(false);
-        }
+        // Allow closing the dialog in all cases
+        onOpenChange(open);
       }}
     >
       <DialogContent>

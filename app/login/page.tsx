@@ -26,11 +26,13 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
+    // Simple validation
     if (!email || !password) {
       setError("Please enter both email and password");
       return;
     }
 
+    // Attempt to log in
     const success = login(email, password);
     if (success) {
       router.push("/dashboard");
@@ -42,8 +44,7 @@ export default function LoginPage() {
   return (
     <>
       <DashboardRedirect />
-
-      <div className="flex items-center justify-center min-h-screen bg-muted text-foreground">
+      <div className="flex items-center justify-center min-h-screen bg-muted">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-center">
@@ -53,7 +54,6 @@ export default function LoginPage() {
               Enter your credentials to access the dashboard
             </CardDescription>
           </CardHeader>
-
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               {error && (
@@ -61,7 +61,6 @@ export default function LoginPage() {
                   {error}
                 </div>
               )}
-
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium">
                   Email
@@ -75,7 +74,6 @@ export default function LoginPage() {
                   required
                 />
               </div>
-
               <div className="space-y-2">
                 <label htmlFor="password" className="text-sm font-medium">
                   Password
@@ -90,7 +88,7 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Demo credentials */}
+              {/* Demo credentials box */}
               <div className="p-3 mt-4 text-sm border rounded-md bg-muted/40">
                 <p className="pb-1 font-medium text-muted-foreground">
                   Demo Credentials:
@@ -111,7 +109,6 @@ export default function LoginPage() {
                 </div>
               </div>
             </CardContent>
-
             <CardFooter>
               <Button type="submit" className="w-full">
                 Sign In

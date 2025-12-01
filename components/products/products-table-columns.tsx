@@ -4,7 +4,6 @@ import { ArrowUpDown, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
 
 interface ProductsTableColumnsProps {
   onEdit: (product: Product) => void;
@@ -41,29 +40,30 @@ export function ProductsTableColumns({
       enableHiding: false,
     },
 
-    // ✅ Image column using Next.js <Image />
+    // ✅ Image column using plain <img> so any online URL works
     {
       accessorKey: "image",
       header: "Image",
       cell: ({ row }) => {
-        const imageUrl = row.getValue("image") as string;
+        const imageUrl = row.getValue("image") as string | null | undefined;
 
         const src =
-          imageUrl && imageUrl !== ""
+          typeof imageUrl === "string" && imageUrl.length > 0
             ? imageUrl
             : "https://via.placeholder.com/48?text=No+Image";
 
         return (
           <div className="flex items-center justify-center">
-            <Image
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={src}
               alt={row.original.title || "Product image"}
               width={48}
               height={48}
               className="object-cover w-12 h-12 border rounded-md"
               onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "https://via.placeholder.com/48?text=No+Image";
+                (e.currentTarget as HTMLImageElement).src =
+                  "https://via.placeholder.com/48?text=No+Image";
               }}
             />
           </div>
@@ -157,7 +157,7 @@ export function ProductsTableColumns({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => product.id && onDelete(product.id)}
+              onClick={() => onDelete(product.id)}
               className="w-8 h-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
             >
               <Trash2 className="w-4 h-4" />

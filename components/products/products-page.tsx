@@ -8,7 +8,6 @@ import { ProductsTable } from "./products-table";
 import { ProductsToolbar } from "./products-toolbar";
 import { EditProductDialog } from "./edit-product-dialog";
 import { DeleteProductDialog } from "./delete-product-dialog";
-import { Toaster } from "sonner";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -26,7 +25,20 @@ export default function ProductsPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     getProducts()
-      .then((data) => setProducts(data))
+      .then((data) => {
+        if (typeof window !== "undefined") {
+          try {
+            const extraRaw =
+              window.sessionStorage.getItem("extraProducts") ?? "[]";
+            const extraProducts = JSON.parse(extraRaw) as Product[];
+            setProducts([...extraProducts, ...data]);
+            return;
+          } catch {
+            // Fall back to API data only if parsing fails
+          }
+        }
+        setProducts(data);
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -37,8 +49,6 @@ export default function ProductsPage() {
 
   const handleDeleteClick = React.useCallback((productId: number) => {
     setProductToDelete(productId);
-    setSelectedProductIds([]); // 🔥 VERY IMPORTANT
-    setSelectedRowsCount(0); // 🔥 RESET COUNT
     setIsBulkDelete(false);
     setDeleteDialogOpen(true);
   }, []);
@@ -56,8 +66,6 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-4">
-      <Toaster richColors closeButton />
-
       <ProductsToolbar productsCount={products.length} />
 
       <ProductsTable
@@ -86,8 +94,33 @@ export default function ProductsPage() {
         selectedProductIds={selectedProductIds}
         selectedRowsCount={selectedRowsCount}
         onProductsDelete={(deletedIds) => {
-          setProducts((prev) => prev.filter((p) => !deletedIds.includes(p.id)));
-          resetSelection();
+          setProducts((prev) => {
+            const updated = prev.filter((p) => !deletedIds.includes(p.id));
+
+            // Keep sessionStorage in sync for locally-created products
+            if (typeof window !== "undefined") {
+              try {
+                const extraRaw =
+                  window.sessionStorage.getItem("extraProducts") ?? "[]";
+                const extraProducts = JSON.parse(extraRaw) as Product[];
+                const updatedExtras = extraProducts.filter(
+                  (p) => !deletedIds.includes(p.id)
+                );
+                window.sessionStorage.setItem(
+                  "extraProducts",
+                  JSON.stringify(updatedExtras)
+                );
+              } catch {
+                // Ignore storage errors – UI state is already updated
+              }
+            }
+
+            return updated;
+          });
+          // Only reset table selection when this was a bulk delete action
+          if (isBulkDelete) {
+            resetSelection();
+          }
         }}
         totalProductsCount={products.length}
       />

@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { createProduct, ProductInput } from "@/lib/api/products";
+import { createProduct, ProductInput, Product } from "@/lib/api/products";
 import { ProductForm } from "@/components/product-form";
 
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { DashboardLayout } from "@/app/dashboard-layout";
 
 export default function AddProductPage() {
@@ -17,7 +17,32 @@ export default function AddProductPage() {
     try {
       setLoading(true);
 
-      await createProduct(data);
+      const createdProduct = await createProduct(data);
+
+      // Persist created product in sessionStorage so it appears in the products table
+      // even though the Fake Store API doesn't return newly created items in /products.
+      if (typeof window !== "undefined") {
+        try {
+          const existing =
+            window.sessionStorage.getItem("extraProducts") ?? "[]";
+          const parsed = JSON.parse(existing) as Product[];
+
+          // Use a client-side unique id to avoid collisions with API ids
+          const localProduct: Product = {
+            ...createdProduct,
+            id: Date.now(),
+          };
+
+          const updated = [...parsed, localProduct];
+          window.sessionStorage.setItem(
+            "extraProducts",
+            JSON.stringify(updated)
+          );
+        } catch {
+          // If anything goes wrong, fail silently – the API created the product,
+          // but the local demo list just won't be extended.
+        }
+      }
 
       toast.success("Product created");
 
@@ -32,12 +57,16 @@ export default function AddProductPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-4">
-        <Toaster richColors closeButton />
+      <div className="flex justify-center mt-8">
+        <div className="w-full max-w-2xl space-y-4">
+          {/* Toaster is already rendered in the root layout, so we don't need it here */}
 
-        <h2 className="text-xl font-semibold tracking-tight">Add Product</h2>
+          <h2 className="text-xl font-semibold tracking-tight text-center">
+            Add Product
+          </h2>
 
-        <ProductForm onSubmit={handleSubmit} loading={loading} />
+          <ProductForm onSubmit={handleSubmit} loading={loading} />
+        </div>
       </div>
     </DashboardLayout>
   );
