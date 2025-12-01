@@ -20,18 +20,20 @@ export default function AddProductPage() {
 
       const createdProduct = await createProduct(data);
 
-      // Persist created product in sessionStorage so it appears in the products table
-      // even though the Fake Store API doesn't return newly created items in /products.
       if (typeof window !== "undefined") {
         try {
           const existing =
             window.sessionStorage.getItem("extraProducts") ?? "[]";
           const parsed = JSON.parse(existing) as Product[];
 
-          // Use a client-side unique id to avoid collisions with API ids
+          const maxId = parsed.length > 0 
+            ? Math.max(...parsed.map(p => p.id))
+            : 20;
+          const newId = Math.max(21, maxId + 1);
+
           const localProduct: Product = {
             ...createdProduct,
-            id: Date.now(),
+            id: newId,
           };
 
           const updated = [...parsed, localProduct];
@@ -40,15 +42,12 @@ export default function AddProductPage() {
             JSON.stringify(updated)
           );
         } catch {
-          // If anything goes wrong, fail silently – the API created the product,
-          // but the local demo list just won't be extended.
         }
       }
 
       toast.success("Product created");
 
       router.push("/products");
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Failed to create product.");
     } finally {
@@ -60,8 +59,6 @@ export default function AddProductPage() {
     <DashboardLayout>
       <div className="flex justify-center mt-8">
         <div className="w-full max-w-2xl space-y-4">
-          {/* Toaster is already rendered in the root layout, so we don't need it here */}
-
           <h2 className="text-xl font-semibold tracking-tight text-center">
             Add Product
           </h2>

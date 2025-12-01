@@ -88,7 +88,6 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Demo credentials box */}
               <div className="p-3 mt-4 text-sm border rounded-md bg-muted/40">
                 <p className="pb-1 font-medium text-muted-foreground">
                   Demo Credentials:

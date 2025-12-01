@@ -37,7 +37,6 @@ export function useProductEdit(
             );
             window.sessionStorage.setItem("extraProducts", JSON.stringify(updatedExtras));
           } catch {
-            // ignore
           }
         }
 

@@ -57,7 +57,6 @@ export function useProductDelete(
               JSON.stringify(updatedExtras)
             );
           } catch {
-            // ignore
           }
         }
 
@@ -80,7 +79,6 @@ export function useProductDelete(
               JSON.stringify(updatedExtras)
             );
           } catch {
-            // ignore
           }
         }
 

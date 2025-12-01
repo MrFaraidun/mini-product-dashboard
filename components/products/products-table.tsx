@@ -67,7 +67,6 @@ export function ProductsTable({
 
   return (
     <div className="w-full space-y-4">
-      {/* Desktop Table View */}
       <div className="hidden md:block">
         <ResponsiveTableContainer>
           <Table>
@@ -128,7 +127,6 @@ export function ProductsTable({
         </ResponsiveTableContainer>
       </div>
 
-      {/* Tablet View */}
       <div className="hidden sm:block md:hidden">
         <ResponsiveTableContainer>
           <Table>
@@ -189,7 +187,6 @@ export function ProductsTable({
         </ResponsiveTableContainer>
       </div>
 
-      {/* Mobile Card View */}
       <div className="sm:hidden">
         {loading ? (
           <div className="py-8 text-center">Loading...</div>

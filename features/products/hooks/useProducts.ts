@@ -24,7 +24,6 @@ export function useProducts() {
           setProducts([...extraProducts, ...data]);
           return;
         } catch {
-          // ignore
         }
       }
 

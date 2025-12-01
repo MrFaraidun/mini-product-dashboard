@@ -17,7 +17,6 @@ export function ProductCard({
     <div className="w-full max-w-md p-3 mx-auto border rounded-lg shadow-sm bg-background">
       <div className="flex gap-3">
         <div className="shrink-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={
               typeof product.image === "string" && product.image.length > 0

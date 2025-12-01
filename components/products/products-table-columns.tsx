@@ -102,7 +102,6 @@ export function ProductsTableColumns({
 
         return (
           <div className="flex items-center justify-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
               alt={row.original.title || "Product image"}
