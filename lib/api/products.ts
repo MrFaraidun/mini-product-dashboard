@@ -1,15 +1,9 @@
+import { Product, ProductInput } from "@/features/products";
+
 const API_URL = "https://fakestoreapi.com/products";
 
-export interface Product {
-  id: number;
-  title: string;
-  price: number;
-  description: string;
-  category: string;
-  image: string;
-}
-
-export type ProductInput = Omit<Product, "id">;
+// Re-export types for backward compatibility
+export type { Product, ProductInput };
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {

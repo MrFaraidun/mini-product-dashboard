@@ -1,23 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
 import {
-  ColumnDef,
-  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  SortingState,
   useReactTable,
-  VisibilityState,
+  getSortedRowModel,
 } from "@tanstack/react-table";
-import { Product } from "@/lib/api/products";
+import { Product, SortConfig } from "@/features/products";
 import { ProductsTableColumns } from "./products-table-columns";
-import { ProductsTableToolbar } from "./products-table-toolbar";
-import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -34,7 +25,12 @@ interface ProductsTableProps {
   loading: boolean;
   onEdit: (product: Product) => void;
   onDelete: (productId: number) => void;
-  onBulkDelete: (selectedIds: number[], resetSelection: () => void) => void;
+  onSort?: (field: SortConfig["field"]) => void;
+  sortConfig?: SortConfig | null;
+  selectedIds?: number[];
+  onToggleSelection?: (id: number) => void;
+  onSelectAll?: (ids: number[]) => void;
+  onClearSelection?: () => void;
 }
 
 export function ProductsTable({
@@ -42,64 +38,35 @@ export function ProductsTable({
   loading,
   onEdit,
   onDelete,
-  onBulkDelete,
+  onSort,
+  sortConfig,
+  selectedIds = [],
+  onToggleSelection,
+  onSelectAll,
 }: ProductsTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = useState({});
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
-
-  const columns = React.useMemo<ColumnDef<Product>[]>(
-    () => ProductsTableColumns({ onEdit, onDelete }),
-    [onEdit, onDelete]
+  const columns = React.useMemo(
+    () =>
+      ProductsTableColumns({
+        onEdit,
+        onDelete,
+        onSort,
+        sortConfig,
+        selectedIds,
+        onToggleSelection,
+        onSelectAll,
+      }),
+    [onEdit, onDelete, onSort, sortConfig, selectedIds, onToggleSelection, onSelectAll]
   );
 
-  const filteredProducts = React.useMemo(() => {
-    if (categoryFilter === "all") return products;
-    return products.filter((p) => p.category === categoryFilter);
-  }, [products, categoryFilter]);
-
   const table = useReactTable({
-    data: filteredProducts,
+    data: products,
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-    },
   });
-
-  const categories = React.useMemo(() => {
-    const set = new Set<string>();
-    products.forEach((p) => set.add(p.category));
-    return Array.from(set);
-  }, [products]);
 
   return (
     <div className="w-full space-y-4">
-      <ProductsTableToolbar
-        table={table}
-        categories={categories}
-        categoryFilter={categoryFilter}
-        onCategoryFilterChange={setCategoryFilter}
-        onBulkDelete={() => {
-          const selectedRows = table.getFilteredSelectedRowModel().rows;
-          const selectedIds = selectedRows.map((row) => row.original.id);
-          const resetSelection = () => setRowSelection({});
-          onBulkDelete(selectedIds, resetSelection);
-        }}
-      />
-
       {/* Desktop Table View */}
       <div className="hidden md:block">
         <ResponsiveTableContainer>
@@ -107,18 +74,16 @@ export function ProductsTable({
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id} className="whitespace-nowrap">
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="whitespace-nowrap">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
@@ -136,7 +101,7 @@ export function ProductsTable({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
+                    data-state={selectedIds.includes(row.original.id) && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="whitespace-nowrap">
@@ -163,25 +128,23 @@ export function ProductsTable({
         </ResponsiveTableContainer>
       </div>
 
-      {/* Tablet/Table View with Horizontal Scroll */}
+      {/* Tablet View */}
       <div className="hidden sm:block md:hidden">
         <ResponsiveTableContainer>
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id} className="whitespace-nowrap">
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="whitespace-nowrap">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
                 </TableRow>
               ))}
             </TableHeader>
@@ -199,7 +162,7 @@ export function ProductsTable({
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
+                    data-state={selectedIds.includes(row.original.id) && "selected"}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="whitespace-nowrap">
@@ -230,9 +193,9 @@ export function ProductsTable({
       <div className="sm:hidden">
         {loading ? (
           <div className="py-8 text-center">Loading...</div>
-        ) : filteredProducts.length > 0 ? (
+        ) : products.length > 0 ? (
           <div className="grid grid-cols-1 gap-3">
-            {filteredProducts.map((product) => (
+            {products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -246,41 +209,6 @@ export function ProductsTable({
             No products found.
           </div>
         )}
-      </div>
-
-      {/* Pagination */}
-      <div className="flex flex-col items-center justify-between gap-4 py-4 xs:flex-row">
-        <div className="flex items-center gap-4">
-          {table.getFilteredSelectedRowModel().rows.length > 0 && (
-            <div className="text-sm font-medium text-foreground">
-              {table.getFilteredSelectedRowModel().rows.length} of{" "}
-              {table.getFilteredRowModel().rows.length} row(s) selected
-            </div>
-          )}
-          {table.getFilteredSelectedRowModel().rows.length === 0 && (
-            <div className="text-sm text-muted-foreground">
-              {table.getFilteredRowModel().rows.length} total product(s)
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
       </div>
     </div>
   );

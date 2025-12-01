@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, ReactNode } from "react";
-import { Product } from "@/lib/api/products";
+import { Product } from "@/features/products";
 
 interface ProductsContextType {
   products: Product[];

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getProducts, Product } from "@/lib/api/products";
+import { getProducts } from "@/lib/api/products";
+import { Product } from "@/features/products";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";

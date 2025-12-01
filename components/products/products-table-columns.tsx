@@ -1,46 +1,94 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Product } from "@/lib/api/products";
-import { ArrowUpDown, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Product, SortConfig } from "@/features/products";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
+import { ArrowUpDown, ArrowUp, ArrowDown, Edit, Trash2 } from "lucide-react";
 
 interface ProductsTableColumnsProps {
   onEdit: (product: Product) => void;
   onDelete: (productId: number) => void;
+  onSort?: (field: SortConfig["field"]) => void;
+  sortConfig?: SortConfig | null;
+  selectedIds?: number[];
+  onToggleSelection?: (id: number) => void;
+  onSelectAll?: (ids: number[]) => void;
 }
 
 export function ProductsTableColumns({
   onEdit,
   onDelete,
+  onSort,
+  sortConfig,
+  selectedIds = [],
+  onToggleSelection,
+  onSelectAll,
 }: ProductsTableColumnsProps): ColumnDef<Product>[] {
+  const SortButton = ({ field }: { field: SortConfig["field"] }) => {
+    if (!onSort) {
+      return <span className="capitalize">{String(field)}</span>;
+    }
+
+    const isActive = sortConfig?.field === field;
+    const direction = isActive ? sortConfig.direction : undefined;
+
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onSort(field)}
+        className="h-8 capitalize"
+      >
+        {String(field)}
+        {direction === "asc" ? (
+          <ArrowUp className="ml-2 h-4 w-4" />
+        ) : direction === "desc" ? (
+          <ArrowDown className="ml-2 h-4 w-4" />
+        ) : (
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        )}
+      </Button>
+    );
+  };
+
   return [
     {
       id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value: boolean) =>
-            table.toggleAllPageRowsSelected(!!value)
-          }
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
+      header: ({ table }) => {
+        const allIds = table.getRowModel().rows.map((row) => row.original.id);
+        const allSelected = allIds.every((id) => selectedIds.includes(id));
+        const someSelected =
+          selectedIds.length > 0 && !allSelected && onSelectAll;
+
+        return (
+          <Checkbox
+            checked={allSelected}
+            onCheckedChange={(checked) => {
+              if (onSelectAll) {
+                onSelectAll(checked ? allIds : []);
+              }
+            }}
+            aria-label="Select all"
+          />
+        );
+      },
+      cell: ({ row }) => {
+        const isSelected = selectedIds.includes(row.original.id);
+        return (
+          <Checkbox
+            checked={isSelected}
+            onCheckedChange={() => {
+              if (onToggleSelection) {
+                onToggleSelection(row.original.id);
+              }
+            }}
+            aria-label="Select row"
+          />
+        );
+      },
       enableSorting: false,
       enableHiding: false,
     },
-
-    // ✅ Image column using plain <img> so any online URL works
     {
       accessorKey: "image",
       header: "Image",
@@ -71,60 +119,34 @@ export function ProductsTableColumns({
       },
       enableSorting: false,
     },
-
     {
       accessorKey: "id",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          ID
-          <ArrowUpDown className="w-4 h-4 ml-2" />
-        </Button>
-      ),
+      header: () => <SortButton field="id" />,
       cell: ({ row }) => (
         <div className="font-medium">{row.getValue("id")}</div>
       ),
     },
-
     {
       accessorKey: "title",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Title
-          <ArrowUpDown className="w-4 h-4 ml-2" />
-        </Button>
-      ),
+      header: () => <SortButton field="title" />,
       cell: ({ row }) => (
         <div className="max-w-xs font-medium truncate">
           {row.getValue("title")}
         </div>
       ),
     },
-
     {
       accessorKey: "category",
-      header: "Category",
+      header: () => <SortButton field="category" />,
       cell: ({ row }) => (
         <Badge variant="secondary">{row.getValue("category")}</Badge>
       ),
     },
-
     {
       accessorKey: "price",
-      header: ({ column }) => (
+      header: () => (
         <div className="text-right">
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Price
-            <ArrowUpDown className="w-4 h-4 ml-2" />
-          </Button>
+          <SortButton field="price" />
         </div>
       ),
       cell: ({ row }) => {
@@ -137,34 +159,34 @@ export function ProductsTableColumns({
         return <div className="font-medium text-right">{formatted}</div>;
       },
     },
-
     {
       id: "actions",
-      enableHiding: false,
+      header: "Actions",
       cell: ({ row }) => {
         const product = row.original;
 
         return (
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end gap-2">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onEdit(product)}
-              className="w-8 h-8 p-0"
+              className="h-8 w-8 p-0"
             >
-              <Edit className="w-4 h-4" />
+              <Edit className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onDelete(product.id)}
-              className="w-8 h-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         );
       },
+      enableSorting: false,
     },
   ];
 }

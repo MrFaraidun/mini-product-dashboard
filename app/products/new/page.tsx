@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { createProduct, ProductInput, Product } from "@/lib/api/products";
+import { createProduct } from "@/lib/api/products";
+import { Product, ProductInput } from "@/features/products";
 import { ProductForm } from "@/components/product-form";
 
 import { toast } from "sonner";

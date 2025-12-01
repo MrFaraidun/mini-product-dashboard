@@ -1,128 +1,118 @@
 "use client";
 
-import * as React from "react";
-import { useEffect, useState } from "react";
-import { Product } from "@/lib/api/products";
-import { getProducts } from "@/lib/api/products";
+import { useProducts } from "@/features/products";
+import {
+  useProductFilters,
+  useProductSort,
+  useProductPagination,
+  useProductSelection,
+  useProductEdit,
+  useProductDelete,
+} from "@/features/products";
 import { ProductsTable } from "./products-table";
 import { ProductsToolbar } from "./products-toolbar";
+import { ProductsTableToolbar } from "./products-table-toolbar";
 import { EditProductDialog } from "./edit-product-dialog";
 import { DeleteProductDialog } from "./delete-product-dialog";
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<number | null>(null);
-  const [isBulkDelete, setIsBulkDelete] = useState(false);
-  const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
-  const [resetSelection, setResetSelection] = useState<() => void>(() => {});
-  const [selectedRowsCount, setSelectedRowsCount] = useState(0);
+  const { products, setProducts, loading } = useProducts();
+  const { filteredProducts, updateFilter, clearFilters } = useProductFilters(products);
+  const { sortedProducts, handleSort, sortConfig } = useProductSort(filteredProducts);
+  const { paginatedProducts, currentPage, totalPages, nextPage, previousPage } =
+    useProductPagination(sortedProducts, 10);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
-    getProducts()
-      .then((data) => {
-        if (typeof window !== "undefined") {
-          try {
-            const extraRaw =
-              window.sessionStorage.getItem("extraProducts") ?? "[]";
-            const extraProducts = JSON.parse(extraRaw) as Product[];
-            setProducts([...extraProducts, ...data]);
-            return;
-          } catch {
-            // Fall back to API data only if parsing fails
-          }
-        }
-        setProducts(data);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+  const { selectedIds, selectedCount, toggleSelection, selectAll } = useProductSelection();
 
-  const handleEdit = React.useCallback((product: Product) => {
-    setEditingProduct(product);
-    setEditDialogOpen(true);
-  }, []);
+  const {
+    editingProduct,
+    isDialogOpen: isEditDialogOpen,
+    isUpdating,
+    startEdit,
+    saveEdit,
+    setIsDialogOpen: setEditDialogOpen,
+  } = useProductEdit(products, setProducts);
 
-  const handleDeleteClick = React.useCallback((productId: number) => {
-    setProductToDelete(productId);
-    setIsBulkDelete(false);
-    setDeleteDialogOpen(true);
-  }, []);
+  const {
+    productToDelete,
+    productsToDelete,
+    isDialogOpen: isDeleteDialogOpen,
+    isDeleting,
+    isBulkDelete,
+    startDelete,
+    startBulkDelete,
+    confirmDelete,
+    setIsDialogOpen: setDeleteDialogOpen,
+  } = useProductDelete(products, setProducts);
 
-  const handleBulkDeleteClick = (ids: number[], reset: () => void) => {
-    setIsBulkDelete(true);
-    setProductToDelete(null);
-
-    setSelectedProductIds(ids);
-    setSelectedRowsCount(ids.length);
-    setResetSelection(() => reset);
-
-    setDeleteDialogOpen(true);
-  };
+  const categories = Array.from(new Set(products.map((p) => p.category)));
 
   return (
     <div className="space-y-4">
       <ProductsToolbar productsCount={products.length} />
 
-      <ProductsTable
-        products={products}
-        loading={loading}
-        onEdit={handleEdit}
-        onDelete={handleDeleteClick}
-        onBulkDelete={handleBulkDeleteClick}
+      <ProductsTableToolbar
+        onSearchChange={(query) => updateFilter("searchQuery", query)}
+        categories={categories}
+        onCategoryChange={(cat) => updateFilter("category", cat)}
+        onClearFilters={clearFilters}
+        onBulkDelete={() => selectedIds.length > 0 && startBulkDelete(selectedIds)}
+        selectedCount={selectedCount}
       />
 
+      <ProductsTable
+        products={paginatedProducts}
+        loading={loading}
+        onEdit={startEdit}
+        onDelete={startDelete}
+        onSort={handleSort}
+        sortConfig={sortConfig}
+        selectedIds={selectedIds}
+        onToggleSelection={toggleSelection}
+        onSelectAll={selectAll}
+      />
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-4 py-4">
+          <div className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages} ({sortedProducts.length} total)
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={previousPage}
+              disabled={currentPage === 1}
+              className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-accent"
+            >
+              Previous
+            </button>
+            <button
+              onClick={nextPage}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 hover:bg-accent"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+
       <EditProductDialog
-        open={editDialogOpen}
+        open={isEditDialogOpen}
         onOpenChange={setEditDialogOpen}
         product={editingProduct}
-        onProductUpdate={(updatedProduct) => {
-          setProducts((prev) =>
-            prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p))
-          );
-        }}
+        onProductUpdate={saveEdit}
+        loading={isUpdating}
       />
+
       <DeleteProductDialog
-        open={deleteDialogOpen}
+        open={isDeleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         productId={productToDelete}
         isBulkDelete={isBulkDelete}
-        selectedProductIds={selectedProductIds}
-        selectedRowsCount={selectedRowsCount}
-        onProductsDelete={(deletedIds) => {
-          setProducts((prev) => {
-            const updated = prev.filter((p) => !deletedIds.includes(p.id));
-
-            // Keep sessionStorage in sync for locally-created products
-            if (typeof window !== "undefined") {
-              try {
-                const extraRaw =
-                  window.sessionStorage.getItem("extraProducts") ?? "[]";
-                const extraProducts = JSON.parse(extraRaw) as Product[];
-                const updatedExtras = extraProducts.filter(
-                  (p) => !deletedIds.includes(p.id)
-                );
-                window.sessionStorage.setItem(
-                  "extraProducts",
-                  JSON.stringify(updatedExtras)
-                );
-              } catch {
-                // Ignore storage errors – UI state is already updated
-              }
-            }
-
-            return updated;
-          });
-          // Only reset table selection when this was a bulk delete action
-          if (isBulkDelete) {
-            resetSelection();
-          }
-        }}
-        totalProductsCount={products.length}
+        selectedProductIds={productsToDelete}
+        selectedRowsCount={productsToDelete.length}
+        onConfirm={confirmDelete}
+        isDeleting={isDeleting}
       />
     </div>
   );

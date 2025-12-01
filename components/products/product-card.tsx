@@ -1,14 +1,18 @@
-import { Product } from "@/lib/api/products";
+import { Product } from "@/features/products";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
-  onEdit: (product: Product) => void;
-  onDelete: (productId: number) => void;
+  onEdit?: (product: Product) => void;
+  onDelete?: (productId: number) => void;
 }
 
-export function ProductCard({ product, onEdit, onDelete }: ProductCardProps) {
+export function ProductCard({
+  product,
+  onEdit,
+  onDelete,
+}: ProductCardProps) {
   return (
     <div className="w-full max-w-md p-3 mx-auto border rounded-lg shadow-sm bg-background">
       <div className="flex gap-3">
@@ -40,26 +44,32 @@ export function ProductCard({ product, onEdit, onDelete }: ProductCardProps) {
             ${parseFloat(product.price.toString()).toFixed(2)}
           </p>
 
-          <div className="flex gap-1 mt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onEdit(product)}
-              className="flex-1 px-2 text-xs h-7"
-            >
-              <Edit className="w-3 h-3 mr-1" />
-              <span className="hidden xs:inline">Edit</span>
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => onDelete(product.id)}
-              className="flex-1 px-2 text-xs h-7"
-            >
-              <Trash2 className="w-3 h-3 mr-1" />
-              <span className="hidden xs:inline">Delete</span>
-            </Button>
-          </div>
+          {(onEdit || onDelete) && (
+            <div className="flex gap-1 mt-2">
+              {onEdit && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onEdit(product)}
+                  className="flex-1 px-2 text-xs h-7"
+                >
+                  <Edit className="w-3 h-3 mr-1" />
+                  <span className="hidden xs:inline">Edit</span>
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => onDelete(product.id)}
+                  className="flex-1 px-2 text-xs h-7"
+                >
+                  <Trash2 className="w-3 h-3 mr-1" />
+                  <span className="hidden xs:inline">Delete</span>
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
