@@ -157,7 +157,7 @@ export function ProductsTableColumns({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onDelete(product.id)}
+              onClick={() => product.id && onDelete(product.id)}
               className="w-8 h-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
             >
               <Trash2 className="w-4 h-4" />

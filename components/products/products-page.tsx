@@ -37,6 +37,8 @@ export default function ProductsPage() {
 
   const handleDeleteClick = React.useCallback((productId: number) => {
     setProductToDelete(productId);
+    setSelectedProductIds([]); // 🔥 VERY IMPORTANT
+    setSelectedRowsCount(0); // 🔥 RESET COUNT
     setIsBulkDelete(false);
     setDeleteDialogOpen(true);
   }, []);

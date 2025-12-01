@@ -42,23 +42,27 @@ export function DeleteProductDialog({
     try {
       setDeleting(true);
 
-      if (isBulkDelete && selectedProductIds.length > 0) {
-        // Perform bulk delete with actual selected product IDs
-        const deletePromises = selectedProductIds.map((id) =>
-          deleteProduct(id)
-        );
-        await Promise.all(deletePromises);
+      // Bulk delete first
+      if (isBulkDelete) {
+        if (selectedProductIds.length === 0) {
+          toast.error("No products selected.");
+          return;
+        }
 
+        await Promise.all(selectedProductIds.map((id) => deleteProduct(id)));
         onProductsDelete(selectedProductIds);
         toast.success(`${selectedProductIds.length} product(s) deleted`);
-      } else if (productId !== null) {
+      }
+
+      // Single delete
+      if (!isBulkDelete && productId !== null) {
         await deleteProduct(productId);
         onProductsDelete([productId]);
         toast.success(`Product #${productId} deleted`);
       }
 
-      onOpenChange(false);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      onOpenChange(false); // 🔥 modal always closes correctly
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Failed to delete product(s).");
     } finally {

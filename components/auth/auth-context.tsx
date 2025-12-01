@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(parsedUser);
           setIsLoggedIn(true);
         }, 0);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         // If parsing fails, clear the invalid data
         localStorage.removeItem("adminUser");
